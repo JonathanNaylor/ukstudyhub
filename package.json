@@ -1,0 +1,11 @@
+{
+  "name": "ukstudyhub",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "astro": "^6.0.0"
+  }
+}
