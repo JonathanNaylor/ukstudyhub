@@ -1,12 +1,72 @@
-<!doctype html>
-<html lang="en-GB">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>UK Study Hub</title>
-  </head>
-  <body>
-    <h1>UK Study Hub</h1>
-    <p>Study guides and academic resources for UK students.</p>
-  </body>
-</html>
+---
+import { getEntry, render } from 'astro:content';
+import ArticleContents from '../components/ArticleContents.astro';
+import Cover from '../components/Cover.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { featuredGuide, postHref } from '../lib/links';
+
+const post = await getEntry('posts', featuredGuide);
+if (!post) throw new Error(`Featured guide is missing: ${featuredGuide}`);
+
+const { Content, headings } = await render(post);
+const { category, cover, featuredTopics, readingMinutes, sectionLabels, title } = post.data;
+const detailStart = title.indexOf(': ');
+const mainTitle = detailStart < 0 ? title : title.slice(0, detailStart + 1);
+const detailTitle = detailStart < 0 ? undefined : title.slice(detailStart + 2);
+const highlightedName = 'Braun and Clarke';
+const [beforeName, afterName] = mainTitle.split(highlightedName);
+const guideHref = postHref(post.id);
+const description = 'Follow the six phases of reflexive thematic analysis and see how codes become themes in a worked interview example.';
+---
+
+<SiteLayout
+  title="The Study Edit | Research Methods and Academic Writing"
+  description="Explore The Study Edit’s guide to Braun and Clarke’s thematic analysis, with six phases, a worked coding example and practical advice for writing up."
+  page="home"
+>
+  <main id="main-content" class="shell home-main">
+    <section class="hero" aria-labelledby="featured-title">
+      <div class="hero-copy">
+        <p class="eyebrow">{category}</p>
+        <h1 id="featured-title">
+          {afterName === undefined
+            ? mainTitle
+            : <>{beforeName}<span class="title-accent">{highlightedName}</span>{afterName}</>}
+          {detailTitle && <> <span class="title-detail">{detailTitle}</span></>}
+        </h1>
+        <p class="hero-description">{description}</p>
+        <div class="hero-actions">
+          <a class="button" href={guideHref}>Read the guide</a>
+          <span class="read-time">{readingMinutes} min read</span>
+        </div>
+      </div>
+      <figure class="hero-art">
+        <Cover cover={cover} />
+      </figure>
+    </section>
+
+    <section class="feature-map" aria-labelledby="feature-map-title">
+      <h2 id="feature-map-title" class="section-heading">Inside the guide</h2>
+      <ul class="topic-links">
+        {featuredTopics.map(({ section, description }) => (
+          <li>
+            <a href={`${guideHref}#${section}`}>
+              <span class="topic-title">{sectionLabels[section]}</span>
+              <span class="topic-description">{description}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <details class="home-guide">
+      <summary>Read the full guide on this page</summary>
+      <div class="reading-layout">
+        <ArticleContents headings={headings} labels={sectionLabels} />
+        <article class="prose" aria-labelledby="featured-title">
+          <Content />
+        </article>
+      </div>
+    </details>
+  </main>
+</SiteLayout>
