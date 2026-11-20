@@ -1,1 +1,45 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import ArticleContents from '../../components/ArticleContents.astro';
+import Cover from '../../components/Cover.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { featuredGuide, homeHref } from '../../lib/links';
 
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const { category, cover, description, readingMinutes, sectionLabels, seoTitle, title } = post.data;
+---
+
+<SiteLayout title={seoTitle} description={description} page={post.id === featuredGuide ? 'guide' : undefined} coverImage={cover.image}>
+  <main id="main-content" class="shell">
+    <a class="breadcrumb" href={homeHref}>Back to home</a>
+    <article aria-labelledby="post-title">
+      <header class="post-header">
+        <div class="post-intro">
+          <p class="eyebrow">{category}</p>
+          <h1 id="post-title">{title}</h1>
+          <span class="read-time">{readingMinutes} min read</span>
+        </div>
+        <Cover cover={cover} class="post-cover" />
+      </header>
+      <div class="reading-layout">
+        <ArticleContents headings={headings} labels={sectionLabels} />
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </article>
+  </main>
+</SiteLayout>
