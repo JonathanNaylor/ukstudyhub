@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { assetHref } from '../lib/links';
+
+interface Props {
+  cover: CollectionEntry<'posts'>['data']['cover'];
+  class?: string;
+}
+
+const { cover, class: className } = Astro.props;
+const image = assetHref(cover.image);
+const thumbnail = assetHref(cover.thumbnail);
+---
+
+<img
+  class={className}
+  src={image}
+  srcset={`${thumbnail} ${cover.width / 2}w, ${image} ${cover.width}w`}
+  sizes="(max-width: 46rem) calc(100vw - 2rem), 540px"
+  width={cover.width}
+  height={cover.height}
+  alt={cover.alt}
+  fetchpriority="high"
+  decoding="async"
+/>
