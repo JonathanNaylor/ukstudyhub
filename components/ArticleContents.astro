@@ -1,1 +1,22 @@
+---
+import type { MarkdownHeading } from 'astro';
 
+interface Props {
+  headings: MarkdownHeading[];
+  labels: Record<string, string>;
+}
+
+const { headings, labels } = Astro.props;
+const sections = headings.filter(heading => heading.depth === 2);
+---
+
+{sections.length > 0 && (
+  <nav class="contents" aria-labelledby="contents-title">
+    <h2 id="contents-title">On this page</h2>
+    <ol>
+      {sections.map(({ slug, text }) => (
+        <li><a href={`#${slug}`}>{labels[slug] ?? text}</a></li>
+      ))}
+    </ol>
+  </nav>
+)}
